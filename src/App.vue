@@ -1,53 +1,8 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import Task from '@/components/Task.vue'
+import Task from '@/components/TaskItem.vue'
+import { useTask } from './composables/useTask'
 
-const task = ref('')
-const tasks = ref<string[]>([])
-const editingIndex = ref<number | null>(null)
-const editedTask = ref('')
-
-const setTask = ($event: Event) => {
-  const target = $event.target as HTMLInputElement
-  task.value = target.value
-}
-
-// Enable editing mode for a task
-const startEditing = (index: number) => {
-  editingIndex.value = index
-  editedTask.value = tasks.value[index]
-}
-
-// Save edited task
-const saveTask = (index: number) => {
-  if (editedTask.value.trim() !== '') {
-    tasks.value[index] = editedTask.value
-  }
-  editingIndex.value = null
-}
-
-const submitTask = () => {
-  if (task.value.trim().length == 0) {
-    alert('task void')
-
-    return
-  }
-
-  const isTaskRepeat = tasks.value.find((item) => item == task.value.trim())
-
-  if (isTaskRepeat) {
-    alert('task repeat')
-    task.value = ''
-    return
-  }
-
-  tasks.value.push(task.value)
-  task.value = ''
-}
-
-const deleteTask = (index: number) => {
-  tasks.value.splice(index, 1)
-}
+const { submitTask, deleteTask, getTaskEdit, task, tasks, isActiveTaskEdit } = useTask()
 </script>
 
 <template>
@@ -58,19 +13,17 @@ const deleteTask = (index: number) => {
   <main>
     <form @submit.prevent="submitTask">
       <input v-model="task" placeholder="create task" />
-      <button>GO</button>
+      <button>{{ isActiveTaskEdit }}</button>
     </form>
 
     <ul>
       <Task
-        v-for="(task, index) in tasks"
+        v-for="(taskItem, index) in tasks"
         :key="index"
-        :task="task"
-        :deleteTask="deleteTask"
+        :task="taskItem"
+        :delete-task="deleteTask"
         :index="index"
-        :startEditing="startEditing"
-        :saveTask="saveTask"
-        :editingIndex="editingIndex"
+        @editEvent="getTaskEdit(index)"
       />
     </ul>
   </main>
@@ -85,6 +38,9 @@ form {
   width: 400px;
   display: flex;
   margin-bottom: 20px;
+
+  display: flex;
+  justify-content: center;
 }
 
 input {

@@ -1,24 +1,28 @@
 <script setup lang="ts">
+import { defineEmits } from 'vue'
+
 const props = defineProps<{
   task: string
   deleteTask: (index: number) => void
   index: number
-  startEditing: (index: number) => void
-  saveTask: (index: number) => void
-  editingIndex: number | null
 }>()
+
+const emit = defineEmits(['editEvent'])
+
+const sendIndexTask = (index: number) => {
+  emit('editEvent', index)
+}
 </script>
 
 <template>
   <li>
-    <input v-if="editingIndex == index" />
-    <p>{{ task }}</p>
+    <p>{{ props.task }}</p>
     <div class="btns">
-      <button class="editBtn" @click="">
+      <button class="editBtn" @click="sendIndexTask(props.index)">
         <img src="../assets/edit.svg" alt="icon edit" />
       </button>
 
-      <button @click="deleteTask(index)">
+      <button @click="deleteTask(props.index)">
         <img src="../assets/delete.svg" alt="icon delete" />
       </button>
     </div>
